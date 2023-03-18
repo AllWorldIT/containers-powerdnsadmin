@@ -18,7 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-FROM registry.conarx.tech/containers/nginx-gunicorn/3.17 as builder
+FROM registry.conarx.tech/containers/nginx-gunicorn/edge as builder
 
 ENV POWERDNS_ADMIN_VER=0.4.0
 ENV POWERDNS_ADMIN_COMMIT=c5b9e2460498e28baad214afc8c9217a25d1f4d5
@@ -146,13 +146,13 @@ RUN set -eux; \
 
 
 
-FROM registry.conarx.tech/containers/nginx-gunicorn/3.17
+FROM registry.conarx.tech/containers/nginx-gunicorn/edge
 
 
 ARG VERSION_INFO=
 LABEL org.opencontainers.image.authors   "Nigel Kukard <nkukard@conarx.tech>"
-LABEL org.opencontainers.image.version   "3.17"
-LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx-gunicorn/3.17"
+LABEL org.opencontainers.image.version   "edge"
+LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx-gunicorn/edge"
 
 
 # Set nginx health check URI
