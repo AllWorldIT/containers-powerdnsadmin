@@ -1,0 +1,73 @@
+# Copyright (c) 2022-2023, AllWorldIT.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+
+version: '3.9'
+
+services:
+  powerdns:
+    image: registry.conarx.tech/containers/powerdns
+    environment:
+      - POSTGRES_HOST=postgresql
+      - POSTGRES_DATABASE=powerdns
+      - POSTGRES_USER=powerdns
+      - POSTGRES_PASSWORD=powerdns
+      - POWERDNS_WEBSERVER_ALLOW_FROM=64:ff9b::/64,172.16.0.0/12
+      - POWERDNS_API_KEY=testkey
+    networks:
+      - internal
+      - external
+
+  postgresql:
+    image: registry.conarx.tech/containers/postgresql
+    environment:
+      - POSTGRES_USER=powerdns
+      - POSTGRES_PASSWORD=powerdns
+      - POSTGRES_DATABASE=powerdns
+    networks:
+      - internal
+
+  powerdnsadmin:
+    image: @@PIPELINE_IMAGE@@
+    environment:
+      - FDC_CI=postgres
+      - POSTGRES_HOST=postgresql
+      - POSTGRES_DATABASE=powerdns
+      - POSTGRES_USER=powerdns
+      - POSTGRES_PASSWORD=powerdns
+      - POWERDNS_API_URL=http://powerdns:8081
+      - POWERDNS_API_KEY=testkey
+      - POWERDNS_VERSION=4.7.3
+      - PDNSA_CAPTCHA_SESSION_KEY=citest
+      - PDNSA_SALT=$$2b$$12$$dhYD/COb6nQHttdnpBfx3u
+      - PDNSA_SECRET_KEY=citest
+    networks:
+      - internal
+      - external
+
+
+networks:
+  internal:
+    driver: bridge
+    enable_ipv6: true
+    internal: true
+  external:
+    driver: bridge
+    enable_ipv6: true

@@ -1,0 +1,10 @@
+#!/app/.venv/bin/python
+
+import bcrypt
+import sys
+
+password = sys.stdin.readline()
+if password[-1] == "\n":
+    password = password[:-1]
+
+print(bcrypt.hashpw(password.encode("UTF-8"), bcrypt.gensalt(rounds=10)).decode("UTF-8"))

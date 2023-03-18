@@ -1,0 +1,82 @@
+commit 138532fb95ed803a26299ad4da43be245d05519b
+Author: Nigel Kukard <nkukard@lbsd.net>
+Date:   Sat Mar 18 20:27:02 2023 +0000
+
+    fix: allow the specification of any combination of groups in LDAP group security configuration
+    
+    Previous behavior required the specification of all three group security groups before the
+    "Save Settings" button would be enabled.
+    
+    This adds a check into users.py which checks that the group is set before searching and
+    removes the javascript preventing the specification of any combination of groups.
+    
+    Tested:
+    - Tested all combinations on AD after MR 1238
+    - Tested all combinations on OpenLDAP
+    - Tested enabling the Group Security with no groups set which correctly prevents login
+    
+    Resolves #1462
+
+diff --git a/powerdnsadmin/models/user.py b/powerdnsadmin/models/user.py
+index 24b43e9..e989aa0 100644
+--- a/powerdnsadmin/models/user.py
++++ b/powerdnsadmin/models/user.py
+@@ -255,33 +255,24 @@ class User(db.Model):
+                             if LDAP_TYPE == 'ldap':
+                                 groupSearchFilter = "(&({0}={1}){2})".format(LDAP_FILTER_GROUPNAME, ldap_username, LDAP_FILTER_GROUP)
+                                 current_app.logger.debug('Ldap groupSearchFilter {0}'.format(groupSearchFilter))
+-                                if (self.ldap_search(groupSearchFilter,
+-                                                     LDAP_ADMIN_GROUP)):
++                                if (LDAP_ADMIN_GROUP and self.ldap_search(groupSearchFilter, LDAP_ADMIN_GROUP)):
+                                     role_name = 'Administrator'
+                                     current_app.logger.info(
+                                         'User {0} is part of the "{1}" group that allows admin access to PowerDNS-Admin'
+-                                        .format(self.username,
+-                                                LDAP_ADMIN_GROUP))
+-                                elif (self.ldap_search(groupSearchFilter,
+-                                                       LDAP_OPERATOR_GROUP)):
++                                        .format(self.username, LDAP_ADMIN_GROUP))
++                                elif (LDAP_OPERATOR_GROUP and self.ldap_search(groupSearchFilter, LDAP_OPERATOR_GROUP)):
+                                     role_name = 'Operator'
+                                     current_app.logger.info(
+                                         'User {0} is part of the "{1}" group that allows operator access to PowerDNS-Admin'
+-                                        .format(self.username,
+-                                                LDAP_OPERATOR_GROUP))
+-                                elif (self.ldap_search(groupSearchFilter,
+-                                                       LDAP_USER_GROUP)):
++                                        .format(self.username, LDAP_OPERATOR_GROUP))
++                                elif (LDAP_USER_GROUP and self.ldap_search(groupSearchFilter, LDAP_USER_GROUP)):
+                                     current_app.logger.info(
+                                         'User {0} is part of the "{1}" group that allows user access to PowerDNS-Admin'
+-                                        .format(self.username,
+-                                                LDAP_USER_GROUP))
++                                        .format(self.username, LDAP_USER_GROUP))
+                                 else:
+                                     current_app.logger.error(
+-                                        'User {0} is not part of the "{1}", "{2}" or "{3}" groups that allow access to PowerDNS-Admin'
+-                                        .format(self.username,
+-                                                LDAP_ADMIN_GROUP,
+-                                                LDAP_OPERATOR_GROUP,
+-                                                LDAP_USER_GROUP))
++                                        'User {0} is not part of any security groups that allow access to PowerDNS-Admin'
++                                        .format(self.username))
+                                     return False
+                             elif LDAP_TYPE == 'ad':
+                                 ldap_group_security_roles = OrderedDict(
+diff --git a/powerdnsadmin/templates/admin_setting_authentication.html b/powerdnsadmin/templates/admin_setting_authentication.html
+index a4c0288..c545958 100644
+--- a/powerdnsadmin/templates/admin_setting_authentication.html
++++ b/powerdnsadmin/templates/admin_setting_authentication.html
+@@ -1772,12 +1772,6 @@
+             $('#ldap_filter_username').prop('required', true);
+             $('#ldap_filter_groupname').prop('required', true);
+ 
+-            if ($('#ldap_sg_on').is(":checked")) {
+-                $('#ldap_admin_group').prop('required', true);
+-                $('#ldap_operator_group').prop('required', true);
+-                $('#ldap_user_group').prop('required', true);
+-            }
+-
+             if ($('#autoprovisioning_on').is(":checked")) {
+                 $('#autoprovisioning_attribute').prop('required', true);
+                 $('#urn_value').prop('required', true);

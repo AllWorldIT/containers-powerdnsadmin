@@ -1,0 +1,2 @@
+# min   hour    day     month   weekday   user      command
+*/5     *       *       *       *         gunicorn  /usr/local/sbin/powerdnsadmin-update
