@@ -79,6 +79,11 @@ RUN set -eux; \
 	patch -p1 < ../patches/fix-nested-ldap-groups.patch; \
 	# fixed upstream
 	patch -p1 < ../patches/fix-group-security-groups.patch; \
+	# probably fixed in upstream
+	patch -p1 < ../patches/fix-cves.patch; \
+	# fixed in upstream
+	echo >> requirements.txt; \
+	echo "setuptools==65.5.1" >> requirements.txt; \
 	\
 	true "PowerDNS Admin Dockerfile Check"; \
 	dockerfile_sha256=$(sha256sum docker/Dockerfile | awk '{print $1}'); \
