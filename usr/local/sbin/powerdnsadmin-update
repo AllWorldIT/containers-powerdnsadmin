@@ -35,6 +35,12 @@ set +a
 export FLASK_APP=/app/powerdnsadmin/__init__.py
 
 
+# Check if updates are disabled
+if [ -n "$DISABLE_UPDATES" ]; then
+	exit 0
+fi
+
+
 # Make sure we don't run the scripts concurrently by using flock
 
 if ! flock -xn /run/gunicorn/pdns-update-accounts.lock python update_accounts.py; then
