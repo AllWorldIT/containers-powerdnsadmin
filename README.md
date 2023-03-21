@@ -100,6 +100,11 @@ Initial admin username to create. This only has an effect if there is no users d
 Initial admin user password. This only has an effect if there is no users defined.
 
 
+## PDNSA_DISABLE_UPDATES
+
+Disable automatic account and zone updates, this should only be run on ONE system.
+
+
 
 # PowerDNS Backend Configuration Variables
 
