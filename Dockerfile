@@ -82,6 +82,8 @@ RUN set -eux; \
 	# probably fixed in upstream
 	patch -p1 < ../patches/fix-cves.patch; \
 	# fixed in upstream
+	patch -p1 < ../patches/fix-x-api-key-decode.patch; \
+	# fixed in upstream
 	echo >> requirements.txt; \
 	echo "setuptools==65.5.1" >> requirements.txt; \
 	\
