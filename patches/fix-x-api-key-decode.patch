@@ -1,0 +1,23 @@
+commit a9548008691e033279062489d2e52bbb537ea867
+Author: Nigel Kukard <nkukard@lbsd.net>
+Date:   Wed Mar 22 01:27:52 2023 +0000
+
+    fix(api): fixed internal server error being generated from invalid UTF-8 encoded X-API-KEY
+
+diff --git a/powerdnsadmin/decorators.py b/powerdnsadmin/decorators.py
+index c6905ba..cfa5f9d 100644
+--- a/powerdnsadmin/decorators.py
++++ b/powerdnsadmin/decorators.py
+@@ -460,10 +460,8 @@ def apikey_auth(f):
+         if auth_header:
+             try:
+                 apikey_val = str(base64.b64decode(auth_header), 'utf-8')
+-            except binascii.Error as e:
+-                current_app.logger.error(
+-                    'Invalid base64-encoded of credential. Error {0}'.format(
+-                        e))
++            except (binascii.Error, UnicodeDecodeError) as e:
++                current_app.logger.error('Invalid base64-encoded X-API-KEY. Error {0}'.format(e))
+                 abort(401)
+             except TypeError as e:
+                 current_app.logger.error('Error: {0}'.format(e))
