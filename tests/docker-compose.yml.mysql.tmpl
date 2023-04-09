@@ -29,7 +29,7 @@ services:
       - MYSQL_DATABASE=powerdns
       - MYSQL_USER=powerdns
       - MYSQL_PASSWORD=powerdns
-      - POWERDNS_WEBSERVER_ALLOW_FROM=64:ff9b::/64,172.16.0.0/12
+      - POWERDNS_WEBSERVER_ALLOW_FROM=64:ff9b:1:ffff::/96,172.31.0.0/16
       - POWERDNS_API_KEY=testkey
     networks:
       - internal
