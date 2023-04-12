@@ -20,11 +20,11 @@
 
 FROM registry.conarx.tech/containers/nginx-gunicorn/3.17 as builder
 
-ENV POWERDNS_ADMIN_VER=0.4.0
-ENV POWERDNS_ADMIN_COMMIT=c5b9e2460498e28baad214afc8c9217a25d1f4d5
+ENV POWERDNS_ADMIN_VER=0.4.1
+ENV POWERDNS_ADMIN_COMMIT=xxx
 
 
-COPY patches /build/patches
+#COPY patches /build/patches
 
 
 RUN set -eux; \
@@ -39,13 +39,14 @@ RUN set -eux; \
 		openldap-dev \
 		python3-dev \
 		py3-pip \
+		py3-psycopg2 \
 		xmlsec-dev \
 		npm \
 		yarn \
 		cargo;
 
 RUN set -eux; \
-#	mkdir build; \
+	mkdir -p build; \
 	cd build; \
 	true "PowerDNS Admin Download"; \
 	# NK: Shallow clone on commit id - remove on next version release
@@ -63,41 +64,21 @@ RUN set -eux; \
 RUN set -eux; \
 	cd build; \
 	cd "PowerDNS-Admin-$POWERDNS_ADMIN_VER"; \
-	# fixed upstream
-	patch -p1 < ../patches/fix-lxml.patch; \
-	# fixed upstream
-	patch -p1 < ../patches/fix-db-migrate-user-confirmed.patch; \
-	# fixed upstream
-	patch -p1 < ../patches/fix-session-clear.patch; \
-	# fixed upstream
-	patch -p1 < ../patches/fix-bad-basicauth-header.patch; \
-	# fixed upstream
-	patch -p1 < ../patches/fix-bad-basicauth-header2.patch; \
-	# fixed upstream
-	patch -p1 < ../patches/password-security.patch; \
-	# fixed upstream
-	patch -p1 < ../patches/fix-nested-ldap-groups.patch; \
-	# fixed upstream
-	patch -p1 < ../patches/fix-group-security-groups.patch; \
-	# probably fixed in upstream
-	patch -p1 < ../patches/fix-cves.patch; \
-	# fixed in upstream
-	patch -p1 < ../patches/fix-x-api-key-decode.patch; \
-	# fixed in upstream
-	echo >> requirements.txt; \
-	echo "setuptools==65.5.1" >> requirements.txt; \
 	\
 	true "PowerDNS Admin Dockerfile Check"; \
 	dockerfile_sha256=$(sha256sum docker/Dockerfile | awk '{print $1}'); \
 	dockerconfig_sha256=$(sha256sum configs/docker_config.py | awk '{print $1}'); \
-	if [ "$dockerfile_sha256" != "d22ded298419888e9c7d203dfac124b7dcbbbf1470251d9e8dd10028e8b4aef7" ]; then \
+	if [ "$dockerfile_sha256" != "2343ed09ef17a7043731288ab9647f89802a4fb7077300f9cb62f30d8a87ae34" ]; then \
 		echo "ERROR ERROR ERROR - Check changes in the docker/Dockerfile!\nHASH: $dockerfile_sha256"; \
 		false; \
 	fi; \
-	if [ "$dockerconfig_sha256" != "7f628277973d0370af9b17b01fb4f6f80cc88c8e131a94c8ad2ef099d6aaff58" ]; then \
+	if [ "$dockerconfig_sha256" != "758ddb0b5789dad5755689cd5dfdb3c3f2dede557a10997046b550cfda1da1e3" ]; then \
 		echo "ERROR ERROR ERROR - Check changes in the config/docker_config.py!\nHASH: $dockerfile_sha256"; \
 		false; \
 	fi; \
+	true "Patch PowerDNS requirements.txt"; \
+	grep "psycopg2==2.9.5" requirements.txt; \
+	sed -i -e 's/psycopg2==2.9.5/psycopg2~=2.9.5/' requirements.txt; \
 	true "PowerDNS Admin Python Requirements"; \
 	python -m venv --system-site-packages /app/.venv; \
 	. /app/.venv/bin/activate; \
