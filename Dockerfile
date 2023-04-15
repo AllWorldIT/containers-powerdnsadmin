@@ -72,7 +72,7 @@ RUN set -eux; \
 		echo "ERROR ERROR ERROR - Check changes in the docker/Dockerfile!\nHASH: $dockerfile_sha256"; \
 		false; \
 	fi; \
-	if [ "$dockerconfig_sha256" != "758ddb0b5789dad5755689cd5dfdb3c3f2dede557a10997046b550cfda1da1e3" ]; then \
+	if [ "$dockerconfig_sha256" != "fac471c0d959a3931eae7ac277dbfa1589a5c7f8db04a61434c2ec268ecd1dff" ]; then \
 		echo "ERROR ERROR ERROR - Check changes in the config/docker_config.py!\nHASH: $dockerfile_sha256"; \
 		false; \
 	fi; \
