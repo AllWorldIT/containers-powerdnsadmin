@@ -18,7 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-FROM registry.conarx.tech/containers/nginx-gunicorn/3.17 as builder
+FROM registry.conarx.tech/containers/nginx-gunicorn/3.18 as builder
 
 ENV POWERDNS_ADMIN_VER=0.4.1
 ENV POWERDNS_ADMIN_COMMIT=xxx
@@ -72,7 +72,7 @@ RUN set -eux; \
 		echo "ERROR ERROR ERROR - Check changes in the docker/Dockerfile!\nHASH: $dockerfile_sha256"; \
 		false; \
 	fi; \
-	if [ "$dockerconfig_sha256" != "fac471c0d959a3931eae7ac277dbfa1589a5c7f8db04a61434c2ec268ecd1dff" ]; then \
+	if [ "$dockerconfig_sha256" != "758ddb0b5789dad5755689cd5dfdb3c3f2dede557a10997046b550cfda1da1e3" ]; then \
 		echo "ERROR ERROR ERROR - Check changes in the config/docker_config.py!\nHASH: $dockerfile_sha256"; \
 		false; \
 	fi; \
@@ -134,13 +134,13 @@ RUN set -eux; \
 
 
 
-FROM registry.conarx.tech/containers/nginx-gunicorn/3.17
+FROM registry.conarx.tech/containers/nginx-gunicorn/3.18
 
 
 ARG VERSION_INFO=
 LABEL org.opencontainers.image.authors   "Nigel Kukard <nkukard@conarx.tech>"
-LABEL org.opencontainers.image.version   "3.17"
-LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx-gunicorn/3.17"
+LABEL org.opencontainers.image.version   "3.18"
+LABEL org.opencontainers.image.base.name "registry.conarx.tech/containers/nginx-gunicorn/3.18"
 
 
 # Set nginx health check URI
